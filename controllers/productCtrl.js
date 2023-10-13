@@ -89,15 +89,83 @@ export const getAllProducts = asyncHandler(async(req,res)=>{
         })
      }
 
+     //pagination
+     const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1
+     const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10 ;
+     const startIndex = (page - 1)* limit;
+     const endIndex = page * limit;
+     const total = await Product.countDocuments()
 
+     productQuery = productQuery.skip(startIndex).limit(limit)
+
+     //pagination result
+     const pagination = {}
+     if(endIndex < total){
+        pagination.next = {
+            page: page+1,
+            limit
+        }
+     }
+
+     if(startIndex > 0){
+        pagination.prev = {
+            page: page-1,
+            limit
+        }
+     }
 
     //await the query
     const products = await productQuery;
 
 
     res.json({
+
         status:"success",
+        results : products.length,
+        total,
+        pagination,
+        message: "Products fetched successfully",
         products
     });
 });
+
+//@desc     get single product
+//@route    GET /api/v1/product/:id
+//@access   public
+
+export const getProductCtrl = asyncHandler(async(req,res)=> {
+    const product = await Product.findById(req.params.id);
+    if(!product){
+        throw new Error('Product not found');
+    }else{
+        res.json({
+            status: "success",
+            message:"Prouct fetched successfully",
+            product
+        })
+    }
+})
+
+
+//@desc     update single product
+//@route    PUT /api/v1/product/:id
+//@access   private/admin
+
+export const updateProductCtrl = asyncHandler(async(req,res)=>{
+    const {name,description,brand,category,sizes,colors,user,reviews,price,totalQty} = req.body;
+
+    const product = await Product.findByIdAndUpdate(req.params.id,{
+        name,description,brand,category,sizes,colors,user,reviews,price,totalQty
+    },
+    {
+        new:true,
+    });
+
+    res.json({
+        status : "success",
+        message:"Product updated successfully",
+        product,
+    })
+
+})
 
