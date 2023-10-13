@@ -53,7 +53,6 @@ export const getAllProducts = asyncHandler(async(req,res)=>{
         })
      }
 
-
      //search by brand
      if(req.query.brand){
         productQuery = productQuery.find({
@@ -82,8 +81,15 @@ export const getAllProducts = asyncHandler(async(req,res)=>{
         })
      }
 
+     //filter by price range
+     if(req.query.price){
+        const priceRange = req.query.price.split('-')
+        productQuery = productQuery.find({
+            price : {$gte : priceRange[0], $lte: priceRange[1]}
+        })
+     }
 
-     
+
 
     //await the query
     const products = await productQuery;
