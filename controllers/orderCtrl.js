@@ -1,4 +1,4 @@
-import expressAsyncHandler from "express-async-handler";
+import asyncHandler from 'express-async-handler';
 import dotenv from "dotenv";
 dotenv.config();
 import Order from "../models/Order.js";
@@ -13,7 +13,7 @@ const stripe = new Stripe(process.env.STRIPE_KEY);
 //@desc      create orders
 //@route    POST /api/v1/orders
 //@acess    private
-export const createOrderCtrl = expressAsyncHandler(async(req,res)=> {
+export const createOrderCtrl = asyncHandler(async(req,res)=> {
     const {orderItems,shippingAddress,totalPrice} = req.body;
     const user = await User.findById(req.userAuthId); 
 
@@ -84,7 +84,51 @@ export const createOrderCtrl = expressAsyncHandler(async(req,res)=> {
     //     order,
     //     user,
     // })
+});
+
+//@desc     get all orders
+//@route    GET /api/v1/orders
+//@acess    private
+
+export const getAllOrderCtrl = asyncHandler(async(req,res)=>{
+   //find all orders
+   const orders = await Order.find();
+   res.json({
+    status:"success",
+    message:"All orders",
+    orders
+   })
 })
 
 
+//@desc     get singel order
+//@route    GET /api/v1/orders/:id
+//@acess    private/admin
 
+export const getSingleOrderCtrl = asyncHandler(async(req,res)=>{
+
+    const id = req.params.id;
+    const order = await Order.findById(id);
+    res.status(200).json({
+        success:true,
+        message:"single order",
+        order,
+    });
+})
+
+//@desc     update order to deliverd
+//@route    GET /api/v1/orders/update/:id
+//@acess    private/admin
+
+export const updateOrderCtrl = asyncHandler(async(req,res)=>{
+    const id = req.params.id
+    const updatedOrder = await Order.findByIdAndUpdate(id,{
+        status:req.body.status
+    },{new:true});
+
+    res.status(200).json({
+        success:true,
+        message:"order updated",
+        updatedOrder,
+    })
+})
