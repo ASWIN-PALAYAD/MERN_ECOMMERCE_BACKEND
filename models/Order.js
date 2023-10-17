@@ -34,6 +34,10 @@ const OrderSchema = new Schema({
         type:String,
         default:"Not Specified"
     },
+    totalPrice:{
+        type:Number,
+        default:0.0
+    },
     currency:{
         type:String,
         default:"Not specified"
@@ -48,7 +52,7 @@ const OrderSchema = new Schema({
         type:Date,
     }
 
-},{timestamps:true})
+},{timestamps:true})  
 
 
 const Order = mongoose.model("Order",OrderSchema);
