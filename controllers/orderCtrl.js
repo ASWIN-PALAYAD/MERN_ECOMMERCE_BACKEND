@@ -1,14 +1,27 @@
 import expressAsyncHandler from "express-async-handler";
+import dotenv from "dotenv";
+dotenv.config();
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
+import Stripe from "stripe";
+
+
+
+const stripe = new Stripe(process.env.STRIPE_KEY);
 
 //@desc      create orders
 //@route    POST /api/v1/orders
 //@acess    private
 export const createOrderCtrl = expressAsyncHandler(async(req,res)=> {
     const {orderItems,shippingAddress,totalPrice} = req.body;
-    const user = await User.findById(req.userAuthId);
+    const user = await User.findById(req.userAuthId); 
+
+    //check user has shipping address
+    if(!user?.hasShippingAddress){
+        throw new Error("Please provide shipping address")
+    }
+
     if(orderItems?.length <= 0){
         throw new Error("No items added")
     }
@@ -37,13 +50,40 @@ export const createOrderCtrl = expressAsyncHandler(async(req,res)=> {
     user.orders.push(order?._id);
     await user.save();
 
-
-    res.json({
-        success : true,
-        message : "Order placed",
-        order,
-        user,
+    // =================make payment (stripe)=========================
+    //conver order items to have same structure that stripe need
+    const convertedOrders = orderItems.map((item)=>{
+        return {
+            price_data:{
+                currency:"inr",
+                product_data:{
+                    name:item?.name,
+                    description:item?.description,
+                },
+                unit_amount:item?.price*100
+            },
+            quantity:item?.qty
+        }
     })
+
+    const session = await stripe.checkout.sessions.create({
+        line_items:convertedOrders,
+        metadata:{
+            orderId :JSON.stringify( order?._id)
+        },
+        mode:'payment',
+        success_url:"http://localhost:3000/success",
+        cancel_url:"http://localhost:3000/cancel"
+    }); 
+    res.send({url:session.url});   
+
+
+    // res.json({
+    //     success : true,
+    //     message : "Order placed",
+    //     order,
+    //     user,
+    // })
 })
 
 

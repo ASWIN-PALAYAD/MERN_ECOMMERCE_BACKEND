@@ -72,3 +72,28 @@ export const getUserProfileCtrl = asyncHandler(async(req,res)=> {
         msg:"welcome to profile page" 
     })
 })
+
+//@desc      update user shipping address
+//@route     PUT /api/v1/users/update/shipping
+//@access    private 
+
+export const updateShippingAddress = asyncHandler(async(req,res)=>{
+    const {firstName,lastName,address,city,postalCode,province,country,phone} = req.body;
+
+    const user = await User.findByIdAndUpdate(req.userAuthId,{
+        shippingAddress:{
+            firstName,lastName,address,city,postalCode,province,country,phone
+        },
+        hasShippingAddress: true,
+    
+    },{
+        new:true,
+    });
+
+    res.json({
+        staus:"success",
+        message:'User shipping address updated successfully',
+        user,
+    })
+
+})
