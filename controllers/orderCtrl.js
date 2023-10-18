@@ -5,6 +5,7 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
 import Stripe from "stripe";
+import Coupon from '../models/Coupon.js';
 
 
 
@@ -14,6 +15,20 @@ const stripe = new Stripe(process.env.STRIPE_KEY);
 //@route    POST /api/v1/orders
 //@acess    private
 export const createOrderCtrl = asyncHandler(async(req,res)=> {
+    const {coupon} = req?.query;
+    const couponFound = await Coupon.findOne({
+        code:coupon?.toUpperCase(),
+    });
+    if(couponFound?.isExpired){
+        throw new Error("Coupon has expired");
+    }
+    if(!couponFound){
+        throw new Error("Coupon doesnot exist");
+    }
+
+    //get discount
+    const discount = couponFound?.discount / 100;
+
     const {orderItems,shippingAddress,totalPrice} = req.body;
     const user = await User.findById(req.userAuthId); 
 
@@ -29,8 +44,10 @@ export const createOrderCtrl = asyncHandler(async(req,res)=> {
         user:user?._id,
         orderItems,
         shippingAddress,
-        totalPrice
+        totalPrice:couponFound ? totalPrice - totalPrice*discount : totalPrice
     });
+
+    console.log(order);
    
 
     //update the product qty

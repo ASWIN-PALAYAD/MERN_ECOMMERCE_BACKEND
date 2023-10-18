@@ -1,6 +1,6 @@
 import dotenv  from "dotenv";
-import Stripe from "stripe";
 dotenv.config();
+import Stripe from "stripe";
 
 import express from "express";
 import dbConnect from "../config/dbConnect.js";   
@@ -13,6 +13,7 @@ import colorRouter from "../routes/colorRouter.js";
 import reviewRouter from "../routes/reviewRouter.js";
 import orderRouter from "../routes/orderRouter.js";
 import Order from "../models/Order.js";
+import couponRouter from "../routes/couponRouter.js";
 
 
 
@@ -88,6 +89,7 @@ app.use('/api/v1/brands',brandsRouter);
 app.use('/api/v1/colors', colorRouter);
 app.use('/api/v1/reviews',reviewRouter);
 app.use('/api/v1/orders',orderRouter);
+app.use('/api/v1/coupons',couponRouter);
 
 
 

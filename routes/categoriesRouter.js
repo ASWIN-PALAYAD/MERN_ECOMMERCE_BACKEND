@@ -6,12 +6,13 @@ import {
   updateCategoryCtrl,
   deleteCategoryCtrl,
 } from "../controllers/CategoryCtrl.js";
-
 import { isLoggedIn } from "../middlewares/isLoggedIn.js";
+import categoryFileUpload from "../config/categoryUpload.js";
+
 
 const categoriesRouter = express.Router();
 
-categoriesRouter.post("/", isLoggedIn, createCategory);
+categoriesRouter.post("/", isLoggedIn,categoryFileUpload.single('file'),createCategory);
 categoriesRouter.get('/',getAllCategoriesCtrl);
 categoriesRouter.get('/:id',getSingleCategoryCtrl);
 categoriesRouter.put('/:id',isLoggedIn,updateCategoryCtrl);

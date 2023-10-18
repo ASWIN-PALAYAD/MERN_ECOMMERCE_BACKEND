@@ -10,6 +10,7 @@ import Brand from '../models/Brand.js';
 //@access   Private/Admin
 
 export const createProductCtrl = asyncHandler(async(req,res)=> {
+    const convertedImg = req.files.map((file)=>file.path);
     const {name,description,brand,category,sizes,colors,reviews,price,totalQty} = req.body;
 
     //product exist
@@ -53,7 +54,8 @@ export const createProductCtrl = asyncHandler(async(req,res)=> {
         user :req.userAuthId,
         reviews,
         price,
-        totalQty
+        totalQty,
+        images:convertedImg,
     });
     //pussh the product into category
     categoryFound.products.push(product._id);
