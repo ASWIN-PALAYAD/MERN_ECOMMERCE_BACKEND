@@ -5,7 +5,7 @@ import {
   getSingleCategoryCtrl,
   updateCategoryCtrl,
   deleteCategoryCtrl,
-} from "../controllers/CategoryCtrl.js";
+} from "../controllers/categoryCtrl.js";
 import { isLoggedIn } from "../middlewares/isLoggedIn.js";
 import categoryFileUpload from "../config/categoryUpload.js";
 import isAdmin from "../middlewares/isAdmin.js";
