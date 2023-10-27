@@ -47,7 +47,10 @@ export const loginUserCtrl = asyncHandler(
             res.json({
                 status : "success",
                 msg : 'User logged Successfully',  
-                userFound,
+                userFound:{
+                    fullname:userFound?.fullname,
+                    isAdmin:userFound?.isAdmin,
+                },
                 token : generateToken(userFound._id)
             })
         }else{
@@ -71,6 +74,16 @@ export const getUserProfileCtrl = asyncHandler(async(req,res)=> {
         user,
     })
    
+})
+
+//get all users
+export const getAllUsersCtrl = asyncHandler(async(req,res)=>{
+    const users = await User.find();
+    res.json({
+        status:'success',
+        message:"fetched all users",
+        users
+    })
 })
 
 //@desc      update user shipping address

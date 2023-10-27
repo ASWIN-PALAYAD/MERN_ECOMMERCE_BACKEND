@@ -1,8 +1,9 @@
 import dotenv  from "dotenv";
+import cors from 'cors';
 dotenv.config();
 import Stripe from "stripe";
-
 import express from "express";
+import path, { join } from 'path';
 import dbConnect from "../config/dbConnect.js";   
 import { globalErrHandler, notFound } from "../middlewares/globalErrorHandler.js";
 import userRoutes from "../routes/usersRoute.js";
@@ -14,6 +15,7 @@ import reviewRouter from "../routes/reviewRouter.js";
 import orderRouter from "../routes/orderRouter.js";
 import Order from "../models/Order.js";
 import couponRouter from "../routes/couponRouter.js";
+import { log } from "console";
 
 
 
@@ -22,8 +24,10 @@ import couponRouter from "../routes/couponRouter.js";
 dbConnect()
 const app = express();
 
-//stripe webhook
+//cors
+app.use(cors());
 
+//stripe webhook
 const stripe = new Stripe(process.env.STRIPE_KEY);
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
@@ -80,16 +84,31 @@ app.post('/webhook', express.raw({type: 'application/json'}), async(request, res
 
 
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 
+//serve static files
+app.use(express.static('public'));
+
+
+// Home route
+// app.use('/',(req,res)=>{
+//   console.log('my routess');
+// res.send('welcome')
+// })
+
+//Home route
+// app.use('/',(req,res)=>{ 
+//   res.sendFile(path,join('public','index.html'))
+// })
 //routes
 app.use('/api/v1/users/',userRoutes);
 app.use('/api/v1/products',productRouter);
-app.use('/api/v1/categories',categoriesRouter);
+app.use('/api/v1/categories',categoriesRouter);  
 app.use('/api/v1/brands',brandsRouter);
 app.use('/api/v1/colors', colorRouter);
 app.use('/api/v1/reviews',reviewRouter);
 app.use('/api/v1/orders',orderRouter);
-app.use('/api/v1/coupons',couponRouter);
+app.use('/api/v1/coupons',couponRouter);   
 
 
 

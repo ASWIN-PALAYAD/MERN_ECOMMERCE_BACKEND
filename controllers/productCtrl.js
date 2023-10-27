@@ -10,7 +10,9 @@ import Brand from '../models/Brand.js';
 //@access   Private/Admin
 
 export const createProductCtrl = asyncHandler(async(req,res)=> {
-    const convertedImg = req.files.map((file)=>file.path);
+    const convertedImg = req.files?.map((file)=>file.path);
+    console.log(req.files);
+    // console.log(req.body);
     const {name,description,brand,category,sizes,colors,reviews,price,totalQty} = req.body;
 
     //product exist
@@ -170,7 +172,13 @@ export const getAllProducts = asyncHandler(async(req,res)=>{
 //@access   public
 
 export const getProductCtrl = asyncHandler(async(req,res)=> {
-    const product = await Product.findById(req.params.id).populate('reviews');
+    const product = await Product.findById(req.params.id).populate({
+        path:"reviews",
+        populate:{
+            path:'user',
+            select:'fullname'
+        }
+    });
     if(!product){
         throw new Error('Product not found');
     }else{
@@ -190,11 +198,14 @@ export const getProductCtrl = asyncHandler(async(req,res)=> {
 export const updateProductCtrl = asyncHandler(async(req,res)=>{
     const {name,description,brand,category,sizes,colors,user,reviews,price,totalQty} = req.body;
 
+    //validation
+
     const product = await Product.findByIdAndUpdate(req.params.id,{
         name,description,brand,category,sizes,colors,user,reviews,price,totalQty
     },
     {
         new:true,
+        runValidators:true
     });
 
     res.json({

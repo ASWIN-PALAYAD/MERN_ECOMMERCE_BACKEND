@@ -7,6 +7,7 @@ import Color from '../models/Color.js';
 
 export const createColorCtrl = asyncHandler(async(req,res)=>{
     const {name} = req.body
+    console.log(req.body);
     
     const colorFound = await Color.findOne({name});
     if(colorFound){
@@ -14,7 +15,7 @@ export const createColorCtrl = asyncHandler(async(req,res)=>{
     }
 
     const color = await Color.create({
-        name : name.toLowerCase(),
+        name : name?.toLowerCase(),
         user: req.userAuthId
     });
 
